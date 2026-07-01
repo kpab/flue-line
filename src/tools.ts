@@ -1,6 +1,6 @@
 /**
- * LINE reply/push send tools, exported from `@p4ni/flue-line/tools` as a
- * module separate from the channel (`@p4ni/flue-line`). The channel package
+ * LINE reply/push send tools, exported from `@kpab/flue-line/tools` as a
+ * module separate from the channel (`@kpab/flue-line`). The channel package
  * never imports from here: verifying inbound webhooks and sending outbound
  * messages are different responsibilities, and only trusted application
  * code should decide which reply token or destination a tool call is bound

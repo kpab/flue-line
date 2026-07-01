@@ -1,6 +1,6 @@
 import { dispatch } from '@flue/runtime';
-import { createLineChannel } from '@p4ni/flue-line';
-import { createReplyMessageTool } from '@p4ni/flue-line/tools';
+import { createLineChannel } from '@kpab/flue-line';
+import { createReplyMessageTool } from '@kpab/flue-line/tools';
 import assistant from '../agents/line-assistant.ts';
 
 /**

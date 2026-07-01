@@ -1,11 +1,11 @@
-# `@p4ni/flue-line`
+# `@kpab/flue-line`
 
 Verified LINE Messaging API webhook ingress, plus reply/push send tools, for
 [Flue](https://flueframework.com) applications.
 
 This is an unofficial, community-maintained channel. As of this writing
 there is no first-party `@flue/line` package in the
-[Flue ecosystem](https://flueframework.com/docs/ecosystem/) — `@p4ni/flue-line`
+[Flue ecosystem](https://flueframework.com/docs/ecosystem/) — `@kpab/flue-line`
 fills that gap, following the same design as first-party channels like
 [`@flue/github`](https://flueframework.com/docs/ecosystem/channels/github/)
 and [`@flue/slack`](https://github.com/withastro/flue/tree/main/packages/slack).
@@ -15,7 +15,7 @@ and [`@flue/slack`](https://github.com/withastro/flue/tree/main/packages/slack).
 ## Quickstart
 
 ```sh
-npm install @p4ni/flue-line
+npm install @kpab/flue-line
 ```
 
 `@flue/runtime` is a peer dependency — install it if you haven't already
@@ -32,7 +32,7 @@ against the exact request bytes before your `webhook` callback ever runs,
 and narrows each event by its `type`:
 
 ```ts
-import { createLineChannel } from '@p4ni/flue-line';
+import { createLineChannel } from '@kpab/flue-line';
 
 export const channel = createLineChannel({
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
@@ -84,7 +84,7 @@ Place this export in `src/channels/line.ts`. Flue discovers it and serves
 
 ```ts
 import { dispatch } from '@flue/runtime';
-import { createLineChannel } from '@p4ni/flue-line';
+import { createLineChannel } from '@kpab/flue-line';
 import assistant from '../agents/assistant.ts';
 
 export const channel = createLineChannel({
@@ -117,7 +117,7 @@ push tool's `to`.
 ## Bind the tool
 
 Outbound send calls (reply/push) live in a separate module,
-`@p4ni/flue-line/tools`, so the channel itself never depends on them — the
+`@kpab/flue-line/tools`, so the channel itself never depends on them — the
 channel's job is verified ingress, and yours is deciding when and how to
 answer.
 
@@ -129,7 +129,7 @@ there, parsing the stable LINE destination back out of the conversation key:
 
 ```ts
 import { defineAgent } from '@flue/runtime';
-import { createPushMessageTool } from '@p4ni/flue-line/tools';
+import { createPushMessageTool } from '@kpab/flue-line/tools';
 import { channel } from '../channels/line.ts';
 
 export default defineAgent((context) => {

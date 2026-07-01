@@ -1,5 +1,5 @@
 import { defineAgent } from '@flue/runtime';
-import { createPushMessageTool } from '@p4ni/flue-line/tools';
+import { createPushMessageTool } from '@kpab/flue-line/tools';
 import { channel } from '../channels/line.ts';
 
 function resolveDestination(id: string): string {

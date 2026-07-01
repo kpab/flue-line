@@ -1,13 +1,13 @@
 {
-	"name": "@p4ni/flue-line",
+	"name": "@kpab/flue-line",
 	"version": "0.1.0",
 	"description": "Verified LINE Messaging API webhook ingress and reply/push tools for Flue applications.",
 	"type": "module",
 	"license": "Apache-2.0",
-	"homepage": "https://github.com/p4ni/flue-line",
+	"homepage": "https://github.com/kpab/flue-line",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/p4ni/flue-line"
+		"url": "https://github.com/kpab/flue-line"
 	},
 	"keywords": [
 		"flue",

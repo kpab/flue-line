@@ -1,7 +1,7 @@
 # `flue-line` minimal agent example
 
 A minimal Flue app: a LINE Official Account receives a text message, and a
-Flue agent replies to it using `@p4ni/flue-line`.
+Flue agent replies to it using `@kpab/flue-line`.
 
 ```
 src/
@@ -19,7 +19,7 @@ flue.config.ts
 npm install
 ```
 
-`@p4ni/flue-line` is linked from the repo root (`file:../..`) so you're
+`@kpab/flue-line` is linked from the repo root (`file:../..`) so you're
 testing against the local package build, not a published version.
 
 ## 2. Configure
@@ -58,17 +58,22 @@ and enable "Use webhook".
 
 Add the LINE Official Account as a friend with its QR code (Messaging API
 tab) and send it a text message. The webhook handler in
-`src/channels/line.ts` verifies the request, dispatches a
-`line.message` input to the `line-assistant` agent for a session keyed by
-the sender's user id, and the agent replies with `reply_line_message` bound
-to that event's one-time-use `replyToken`.
+`src/channels/line.ts` sends an immediate "考え中です…" acknowledgement with
+`reply_line_message` (using that event's one-time-use `replyToken` directly,
+not as a model tool), then dispatches a `line.message` input to the
+`line-assistant` agent for a session keyed by the sender's user id. The
+agent's actual answer arrives afterwards via `push_line_message`.
 
 ## Notes
 
 - This example only handles 1-on-1 text messages; extend
   `src/channels/line.ts` to branch on `event.type` / `event.message.type`
   for group chats, stickers, images, postbacks, etc. — see the type
-  definitions exported from `@p4ni/flue-line` for the full set of events.
-- The reply tool is created inside the agent's `defineAgent()` initializer
-  (from `context.input.replyToken`), not inside the channel handler, since
-  the tool must be available when the agent's session actually runs.
+  definitions exported from `@kpab/flue-line` for the full set of events.
+- `defineAgent()`'s initializer runs once per session and only gets
+  `{ id, env }`, not the per-message `input` passed to `dispatch()`. That's
+  why the push tool in `src/agents/line-assistant.ts` is bound from
+  `context.id` (parsed back into a LINE destination with
+  `channel.parseConversationKey()`), while the reply tool — tied to a
+  single, fast-expiring `replyToken` — is called directly from
+  `src/channels/line.ts` instead of being handed to the model.
