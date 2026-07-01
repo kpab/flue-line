@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		// resolution
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"allowArbitraryExtensions": true,
+		"allowImportingTsExtensions": true,
+		"allowJs": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"target": "ES2022",
+		"lib": ["ESNext", "DOM"],
+
+		// strictness
+		"strict": true,
+		"skipLibCheck": true,
+		"noUncheckedIndexedAccess": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"forceConsistentCasingInFileNames": true,
+
+		// util
+		"noEmit": true,
+		"incremental": true,
+
+		// DX
+		"preserveWatchOutput": true
+	},
+	"include": ["src", "test", "test-workerd", "examples"]
+}

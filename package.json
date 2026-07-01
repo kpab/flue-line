@@ -1,0 +1,62 @@
+{
+	"name": "@p4ni/flue-line",
+	"version": "0.1.0",
+	"description": "Verified LINE Messaging API webhook ingress and reply/push tools for Flue applications.",
+	"type": "module",
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/p4ni/flue-line",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/p4ni/flue-line"
+	},
+	"keywords": [
+		"flue",
+		"line",
+		"line-messaging-api",
+		"webhook",
+		"chatbot",
+		"agent"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		},
+		"./tools": {
+			"types": "./dist/tools.d.mts",
+			"import": "./dist/tools.mjs"
+		}
+	},
+	"main": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=22.19.0"
+	},
+	"scripts": {
+		"build": "tsdown",
+		"check:types": "tsc --noEmit",
+		"test": "vitest run",
+		"test:workerd": "vitest run --config vitest.workerd.config.ts"
+	},
+	"dependencies": {
+		"hono": "4.12.22"
+	},
+	"peerDependencies": {
+		"@flue/runtime": "^1.0.0-beta.1"
+	},
+	"peerDependenciesMeta": {
+		"@flue/runtime": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "0.16.15",
+		"@flue/runtime": "^1.0.0-beta.1",
+		"tsdown": "^0.22.0",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.6"
+	}
+}
