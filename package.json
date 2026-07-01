@@ -42,7 +42,8 @@
 		"test:workerd": "vitest run --config vitest.workerd.config.ts"
 	},
 	"dependencies": {
-		"hono": "4.12.22"
+		"hono": "4.12.22",
+		"valibot": "^1.0.0"
 	},
 	"peerDependencies": {
 		"@flue/runtime": "^1.0.0-beta.1"
