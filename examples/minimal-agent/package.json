@@ -1,0 +1,15 @@
+{
+	"name": "flue-line-minimal-agent-example",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "flue dev"
+	},
+	"dependencies": {
+		"@flue/runtime": "^1.0.0-beta.1",
+		"@p4ni/flue-line": "file:../.."
+	},
+	"devDependencies": {
+		"@flue/cli": "^1.0.0-beta.1"
+	}
+}
