@@ -42,7 +42,7 @@
 		"test:workerd": "vitest run --config vitest.workerd.config.ts"
 	},
 	"dependencies": {
-		"hono": "4.12.22",
+		"hono": "4.12.27",
 		"valibot": "^1.0.0"
 	},
 	"peerDependencies": {
@@ -54,10 +54,11 @@
 		}
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "0.16.15",
+		"@cloudflare/vitest-pool-workers": "0.16.20",
 		"@flue/runtime": "^1.0.0-beta.1",
 		"tsdown": "^0.22.0",
 		"typescript": "^6.0.3",
+		"unrun": "^0.3.1",
 		"vitest": "^4.1.6"
 	}
 }
