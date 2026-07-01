@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"allowArbitraryExtensions": true,
+		"allowImportingTsExtensions": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"target": "ES2022",
+		"lib": ["ESNext", "DOM"],
+		"strict": true,
+		"skipLibCheck": true,
+		"noEmit": true
+	},
+	"include": ["src", "flue.config.ts"]
+}

@@ -100,7 +100,6 @@ export const channel = createLineChannel({
         type: 'line.message',
         eventId: event.webhookEventId,
         text: event.message.text,
-        replyToken: event.replyToken,
       },
     });
   },
@@ -121,34 +120,46 @@ export const channel = createLineChannel({
 一切依存しません — チャンネルの責務は検証済みの取り込みであり、いつ・
 どう返信するかはアプリケーション側が決めます。
 
+`defineAgent()` の初期化関数はセッションごとに一度だけ実行され、受け取る
+のは `{ id, env }`（`@flue/runtime` の `AgentInitializerContext`）のみで、
+`dispatch()` に渡したイベントごとの `input` は含まれません。そのため
+ツールはイベント単位ではなく `context.id`（会話キー）から束縛します。
+セッションを通じて安定している **push** ツールはここで束縛するのが
+自然です。会話キーから LINE の宛先を復元します。
+
 ```ts
 import { defineAgent } from '@flue/runtime';
-import { createReplyMessageTool } from '@p4ni/flue-line/tools';
+import { createPushMessageTool } from '@p4ni/flue-line/tools';
+import { channel } from '../channels/line.ts';
 
 export default defineAgent((context) => {
-  const input = context.input as { text: string; replyToken: string };
+  const ref = channel.parseConversationKey(context.id);
+  const to = ref.type === 'user' ? ref.userId : ref.type === 'group' ? ref.groupId : ref.roomId;
 
   return {
     model: 'anthropic/claude-sonnet-4-6',
     instructions: 'LINEメッセージに丁寧かつ簡潔に返信してください。',
-    tools: [
-      createReplyMessageTool({
-        channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-        replyToken: input.replyToken,
-      }),
-    ],
+    tools: [createPushMessageTool({ channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!, to })],
   };
 });
 ```
 
-モデルが選択できるのはメッセージの `text` のみです。`replyToken`
-（または push の宛先 `to`）は webhook イベントから信頼できるコードが
-束縛するものであり、モデルが選択可能な入力としては一切公開しません。
-LINE のリプライトークンは一度しか使えず、webhook 発火から短時間で
-失効するため、イベントごとに reply ツールを都度生成し、1イベントにつき
-最大1回の呼び出しを想定してください。返信ウィンドウ外でのメッセージ送信
-（能動的な通知、遅延フォローアップなど）には代わりに
-`createPushMessageTool({ channelAccessToken, to })` を使用してください。
+LINE のリプライトークンは一度しか使えず webhook 発火から短時間で失効する
+ため、セッションの生存期間全体で1回だけ束縛されるツールには馴染みません。
+即時の応答確認には代わりに `createReplyMessageTool({ channelAccessToken,
+replyToken })` を使い、`dispatch()` の前に `webhook()` の中でモデルを
+介さず直接呼び出します。
+
+```ts
+await createReplyMessageTool({
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
+  replyToken: event.replyToken,
+}).run({ input: { text: '考え中です…' }, signal: undefined });
+```
+
+いずれの場合もモデルが選択できるのはメッセージの `text` のみです。
+`replyToken` と push の宛先 `to` は信頼できるコードが束縛するものであり、
+モデルが選択可能な入力としては一切公開しません。
 
 チャンネルと両方のツールを組み合わせた完全に動作するアプリの例は
 [`examples/minimal-agent`](./examples/minimal-agent) を参照してください。

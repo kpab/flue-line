@@ -1,5 +1,6 @@
 import { dispatch } from '@flue/runtime';
 import { createLineChannel } from '@p4ni/flue-line';
+import { createReplyMessageTool } from '@p4ni/flue-line/tools';
 import assistant from '../agents/line-assistant.ts';
 
 /**
@@ -15,6 +16,18 @@ export const channel = createLineChannel({
 		if (event.type !== 'message' || event.message.type !== 'text') return;
 		if (event.source?.type !== 'user') return;
 
+		// Send the immediate acknowledgement ourselves, directly, using the
+		// event's one-time-use replyToken — this call is not a model tool,
+		// since it must happen synchronously within LINE's short reply
+		// window, well before the agent below has a chance to think.
+		await createReplyMessageTool({
+			channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
+			replyToken: event.replyToken,
+		}).run({ input: { text: '考え中です…' }, signal: undefined });
+
+		// The agent's actual answer arrives later via push_line_message,
+		// bound to this session's stable LINE destination (see
+		// src/agents/line-assistant.ts).
 		await dispatch(assistant, {
 			// One session per LINE user, so the agent keeps conversation history per user.
 			id: channel.conversationKey({ type: 'user', userId: event.source.userId }),
@@ -22,7 +35,6 @@ export const channel = createLineChannel({
 				type: 'line.message',
 				eventId: event.webhookEventId,
 				text: event.message.text,
-				replyToken: event.replyToken,
 			},
 		});
 	},

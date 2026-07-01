@@ -26,7 +26,7 @@ describe('createReplyMessageTool', () => {
 	});
 
 	it('calls the reply endpoint with the bound replyToken and Bearer auth', async () => {
-		const fetchMock = vi.fn(async () => new Response(null, { status: 200 }));
+		const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => new Response(null, { status: 200 }));
 		vi.stubGlobal('fetch', fetchMock);
 
 		const tool = createReplyMessageTool({ channelAccessToken: 'secret-token', replyToken: 'rt-1' });
@@ -34,7 +34,9 @@ describe('createReplyMessageTool', () => {
 
 		expect(result).toEqual({ sent: true });
 		expect(fetchMock).toHaveBeenCalledTimes(1);
-		const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+		const call = fetchMock.mock.calls[0];
+		if (!call) throw new Error('fetch was not called');
+		const [url, init] = call;
 		expect(url).toBe('https://api.line.me/v2/bot/message/reply');
 		expect(init.method).toBe('POST');
 		expect((init.headers as Record<string, string>).authorization).toBe('Bearer secret-token');
@@ -66,13 +68,15 @@ describe('createPushMessageTool', () => {
 	});
 
 	it('calls the push endpoint with the bound destination', async () => {
-		const fetchMock = vi.fn(async () => new Response(null, { status: 200 }));
+		const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => new Response(null, { status: 200 }));
 		vi.stubGlobal('fetch', fetchMock);
 
 		const tool = createPushMessageTool({ channelAccessToken: 'secret-token', to: 'Uabc123' });
 		await tool.run({ input: { text: 'proactive ping' }, signal: undefined });
 
-		const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+		const call = fetchMock.mock.calls[0];
+		if (!call) throw new Error('fetch was not called');
+		const [url, init] = call;
 		expect(url).toBe('https://api.line.me/v2/bot/message/push');
 		expect(JSON.parse(init.body as string)).toEqual({
 			to: 'Uabc123',

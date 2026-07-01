@@ -26,5 +26,5 @@
 		// DX
 		"preserveWatchOutput": true
 	},
-	"include": ["src", "test", "test-workerd", "examples"]
+	"include": ["src", "test", "test-workerd"]
 }

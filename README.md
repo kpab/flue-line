@@ -101,7 +101,6 @@ export const channel = createLineChannel({
         type: 'line.message',
         eventId: event.webhookEventId,
         text: event.message.text,
-        replyToken: event.replyToken,
       },
     });
   },
@@ -120,35 +119,47 @@ push tool's `to`.
 Outbound send calls (reply/push) live in a separate module,
 `@p4ni/flue-line/tools`, so the channel itself never depends on them — the
 channel's job is verified ingress, and yours is deciding when and how to
-answer:
+answer.
+
+`defineAgent()`'s initializer runs once per session and only receives
+`{ id, env }` (`@flue/runtime`'s `AgentInitializerContext`) — not the
+per-message `input` passed to `dispatch()` — so a session's tools are wired
+once from `context.id`, not from a single event. Bind the **push** tool
+there, parsing the stable LINE destination back out of the conversation key:
 
 ```ts
 import { defineAgent } from '@flue/runtime';
-import { createReplyMessageTool } from '@p4ni/flue-line/tools';
+import { createPushMessageTool } from '@p4ni/flue-line/tools';
+import { channel } from '../channels/line.ts';
 
 export default defineAgent((context) => {
-  const input = context.input as { text: string; replyToken: string };
+  const ref = channel.parseConversationKey(context.id);
+  const to = ref.type === 'user' ? ref.userId : ref.type === 'group' ? ref.groupId : ref.roomId;
 
   return {
     model: 'anthropic/claude-sonnet-4-6',
     instructions: 'Reply to LINE messages helpfully and concisely.',
-    tools: [
-      createReplyMessageTool({
-        channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-        replyToken: input.replyToken,
-      }),
-    ],
+    tools: [createPushMessageTool({ channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!, to })],
   };
 });
 ```
 
-The model only ever chooses the message `text` — the `replyToken` (or push
-`to` destination) is bound by trusted code from the webhook event, never
-exposed as a model-selectable input. A LINE reply token is single-use and
-expires shortly after the webhook fires, so create the reply tool fresh per
-event and expect to call it at most once; use `createPushMessageTool({
-channelAccessToken, to })` instead for messages sent outside a reply
-window (proactive notifications, delayed follow-ups, etc.).
+A LINE reply token is single-use and expires shortly after its webhook
+fires, so it doesn't fit a tool wired once for a session's whole lifetime.
+Use `createReplyMessageTool({ channelAccessToken, replyToken })` for an
+immediate acknowledgement instead, called directly (not exposed to the
+model) from inside `webhook()`, before `dispatch()`:
+
+```ts
+await createReplyMessageTool({
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
+  replyToken: event.replyToken,
+}).run({ input: { text: 'Got it, thinking…' }, signal: undefined });
+```
+
+In both cases the model only ever chooses the message `text` — the
+`replyToken` and push `to` destination are bound by trusted code, never
+exposed as a model-selectable input.
 
 See [`examples/minimal-agent`](./examples/minimal-agent) for a complete,
 runnable app wiring the channel and both tools together.
